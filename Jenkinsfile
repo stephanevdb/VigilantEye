@@ -17,7 +17,7 @@ pipeline {
         stage('Run container') {
             steps {
                 sh 'echo "Running container"'
-                sh 'docker run -p 5080:3000 stephanevdb/vigilanteye:latest'
+                sh 'docker run -d -p 5080:3000 stephanevdb/vigilanteye:latest'
             }
         }
         stage('Test API') {
