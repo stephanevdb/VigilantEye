@@ -23,7 +23,7 @@ pipeline {
         stage('Test API') {
             steps {
                 sh 'echo "Testing API"'
-                sh 'curl -s -o /dev/null -w "%{http_code}" http://localhost/api | grep -q 200'
+                sh 'curl -s -o /dev/null -w "%{http_code}" http://localhost:5080/api | grep -q 200'
             }
         }
     }
