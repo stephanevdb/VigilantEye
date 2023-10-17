@@ -27,9 +27,11 @@ pipeline {
         }
         stage('Cleanup') {
             steps {
-                sh 'echo "Cleaning up"'
-                sh 'docker stop vigilanteye'
-                sh 'docker rm vigilanteye'
+                catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+                    sh 'echo "Cleaning up"'
+                    sh 'docker stop vigilanteye'
+                    sh 'docker rm vigilanteye'
+                }
             }
         }
     }
