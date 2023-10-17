@@ -25,14 +25,12 @@ pipeline {
                 sh 'docker buildx build --push --platform linux/amd64,linux/arm64 -t stephanevdb/vigilanteye:latest .'
             }
         }
-        stage('Cleanup') {
-            steps {
-                catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
-                    sh 'echo "Cleaning up"'
-                    sh 'docker stop vigilanteye'
-                    sh 'docker rm vigilanteye'
-                }
-            }
+    }
+    post { 
+        always { 
+            sh 'echo "Cleaning up"'
+            sh 'docker stop vigilanteye'
+            sh 'docker rm vigilanteye'
         }
     }
 }
