@@ -13,10 +13,12 @@ pipeline {
                 sh 'docker run -d -p 5080:3000 --name vigilanteye stephanevdb/vigilanteye-master:latest'
             }
         }
-        stage('Test API') {
+        stage('Test app') {
             steps {
-                sh 'echo "Testing API"'
-                sh 'curl -s -o /dev/null -w "%{http_code}" http://localhost:5080/test | grep -q 200'
+                sh 'echo "Testing app"'
+                waitUntil {
+                    sh 'wget --retry-connrefused --tries=120 --waitretry=1 -q http://localhost5080/test -O /dev/null'
+                }
             }
         }
         stage('Push image') {
