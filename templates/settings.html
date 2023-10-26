@@ -8,11 +8,11 @@
 <body>
     <nav class="navbar">
         <div class="navbar-left">
-            <a href="#">Input</a>
-            <a href="#">Output</a>
+            <a href="{{ url_for('index') }}">Input</a>
+            <a href="{{ url_for('output') }}">Output</a>
         </div>
         <div class="navbar-right">
-            <a href="#">Settings</a>
+            <a href="{{ url_for('settings') }}">Settings</a>
         </div>
     </nav>
     <h1>Workers</h1>

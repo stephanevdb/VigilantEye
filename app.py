@@ -14,5 +14,9 @@ def settings():
 def test():
     return render_template('test.html'), 200
 
+@app.route("/output")
+def output():
+    return render_template('output.html')
+
 if __name__ == "__main__":
     app.run(debug=True)
