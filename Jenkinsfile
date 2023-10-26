@@ -4,13 +4,13 @@ pipeline {
         stage('Build local image') {
             steps {
                 sh 'echo "Building"'
-                sh 'docker buildx build -t stephanevdb/vigilanteye:latest .'
+                sh 'docker buildx build -t stephanevdb/vigilanteye-master:latest .'
             }
         }
         stage('Run container') {
             steps {
                 sh 'echo "Running container"'
-                sh 'docker run -d -p 5080:3000 --name vigilanteye stephanevdb/vigilanteye:latest'
+                sh 'docker run -d -p 5080:3000 --name vigilanteye stephanevdb/vigilanteye-master:latest'
             }
         }
         stage('Test API') {
@@ -22,7 +22,7 @@ pipeline {
         stage('Push image') {
             steps {
                 sh 'echo "Pushing"'
-                sh 'docker buildx build --push --platform linux/amd64,linux/arm64 -t stephanevdb/vigilanteye:latest .'
+                sh 'docker buildx build --push --platform linux/amd64,linux/arm64 -t stephanevdb/vigilanteye-master:latest .'
             }
         }
     }
