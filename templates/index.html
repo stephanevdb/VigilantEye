@@ -16,6 +16,13 @@
         </div>
     </nav>
     <h1>Input</h1>
+    <form method="POST" action="{{ url_for('submit_form') }}">
+        <label for="target">Target:</label>
+        <input type="text" id="target" name="target"><br><br>
+        <input type="checkbox" id="ping" name="ping" value="ping">
+        <label for="ping">Ping</label><br><br>
+        <button type="submit">Submit</button>
+    </form>
     
 </body>
 </html>
