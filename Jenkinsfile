@@ -34,11 +34,11 @@ pipeline {
             }
         }
     }
-    post { 
-        always { 
+    //post { 
+        //always { 
             //sh 'echo "Cleaning up"'
             //sh 'docker stop vigilanteye'
             //sh 'docker rm vigilanteye'
-        }
-    }
+        //}
+    //}
 }
