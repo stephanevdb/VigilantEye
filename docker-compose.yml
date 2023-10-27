@@ -1,12 +1,11 @@
 version: '3.1'
 services:
   master:
-    image: stephanevdb/stephanevdb/vigilanteye-master:latest
+    image: stephanevdb/vigilanteye-master:latest
     restart: unless-stopped
     ports:
       - "5080:3000"
+      - "5080:3000/tcp6"
   worker:
-    image: stephanevdb/stephanevdb/vigilanteye-worker:latest
+    image: stephanevdb/vigilanteye-worker:latest
     restart: unless-stopped
-    
-    

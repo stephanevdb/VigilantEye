@@ -30,7 +30,7 @@ pipeline {
         stage('Deploy') {
             steps {
                 sh 'echo "Sending POST request"'
-                sh 'curl -X POST -H "Content-Type: application/json" https://portainer.stephanevdb.com/api/stacks/webhooks/d1a57ad8-f428-48b0-957a-a8c1cfa2b6fb'
+                sh 'curl -X POST -H "Content-Type: application/json" https://portainer.stephanevdb.com/api/webhooks/a685ae61-e404-45d1-aa39-e7113d17e70f'
             }
         }
     }
