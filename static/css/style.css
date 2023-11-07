@@ -88,3 +88,38 @@ input[type="submit"] {
     padding: 10px;
    
 }
+table {
+    width: 80%;
+    margin: 0 auto;
+    border-collapse: collapse;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+th, td {
+    padding: 10px;
+    text-align: left;
+}
+
+th {
+    background-color: #333;
+    color: white;
+}
+
+tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+tr:hover {
+    background-color: #e0e0e0;
+}
+
+.fa-trash-alt {
+    color: red; /* Change the color to your preference */
+}
+
+/* Style for the remove button */
+.remove-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+}

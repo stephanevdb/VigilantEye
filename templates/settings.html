@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <link rel="stylesheet" href="{{ url_for('static', filename= 'css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <title>EH-Scan</title>
 </head>
 <body>
@@ -15,6 +16,63 @@
             <a href="{{ url_for('settings') }}">Settings</a>
         </div>
     </nav>
-    <h1>Workers</h1>
+    <h1>Active Workers</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>IPv4 Capable</th>
+                <th>IPv4 Address</th>
+                <th>IPv6 Capable</th>
+                <th>IPv6 Address</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for worker in active_workers %}
+            <tr>
+                <td>{{ worker.id }}</td>
+                <td>{{ "Yes" if worker.ipv4_capable else "No" }}</td>
+                <td>{{ worker.ipv4_address }}</td>
+                <td>{{ "Yes" if worker.ipv6_capable else "No" }}</td>
+                <td>{{ worker.ipv6_address }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% if dead_workers %}
+    <h1>Dead Workers</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>IPv4 Capable</th>
+                <th>IPv4 Address</th>
+                <th>IPv6 Capable</th>
+                <th>IPv6 Address</th>
+                <th>Remove</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for worker in dead_workers %}
+            <tr>
+                <td>{{ worker.id }}</td>
+                <td>{{ "Yes" if worker.ipv4_capable else "No" }}</td>
+                <td>{{ worker.ipv4_address }}</td>
+                <td>{{ "Yes" if worker.ipv6_capable else "No" }}</td>
+                <td>{{ worker.ipv6_address }}</td>
+                <td>
+                    <form method="POST" action="{{ url_for('remove_worker') }}">
+                        <input type="hidden" name="id" value="{{ worker.id }}">
+                        <button type="submit" class="remove-button">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% endif %}
+    
 </body>
 </html>
