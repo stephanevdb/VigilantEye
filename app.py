@@ -62,8 +62,6 @@ def submit_form():
     #print(f"Ping: {ping_en}")
     #ping4(target)
     #ping6(target)
-
-    # You can redirect to another page or return a response as needed
     return redirect(url_for('index'))
 
 

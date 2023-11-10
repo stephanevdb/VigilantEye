@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <link rel="stylesheet" href="{{ url_for('static', filename= 'css/style.css') }}">
-    <title>EH-Scan</title>
+    <title>VigilentEye</title>
 </head>
 <body>
     <nav class="navbar">
@@ -21,9 +21,9 @@
         <input type="text" id="target" name="target" oninput="updateCheckboxes()"><br><br>
         <div class="checkboxes">
             <input type="checkbox" id="ipv4" name="ipv4" value="ipv4" checked>
-            <label for="ping">ipv4</label><br>
+            <label for="ping" id="ipv4">ipv4</label><br>
             <input type="checkbox" id="ipv6" name="ipv6" value="ipv6" checked>
-            <label for="trace">ipv6</label><br><br>
+            <label for="trace" id="ipv6">ipv6</label><br><br>
         </div>
         <input type="checkbox" id="trace" name="trace" value="trace">
         <label for="ping">Ping</label><br><br>
@@ -52,7 +52,6 @@
         }
     }
     </script>
-    
-    
+
 </body>
 </html>

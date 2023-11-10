@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <link rel="stylesheet" href="{{ url_for('static', filename= 'css/style.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <title>EH-Scan</title>
+    <title>Settings</title>
 </head>
 <body>
     <nav class="navbar">
@@ -40,7 +40,7 @@
         </tbody>
     </table>
     {% if dead_workers %}
-    <h1>Dead Workers</h1>
+    <h1>Inactive Workers</h1>
     <table>
         <thead>
             <tr>
@@ -49,7 +49,7 @@
                 <th>IPv4 Address</th>
                 <th>IPv6 Capable</th>
                 <th>IPv6 Address</th>
-                <th>Remove</th>
+                <th></th>
             </tr>
         </thead>
         <tbody>
