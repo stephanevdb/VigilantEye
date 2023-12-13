@@ -1,25 +1,14 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, session
 import sqlite3
-#from modules.ping import ping4, ping6
+import os
+import json
+from sqlite import dbinit, execute
+from modules.ping import ping_target
 
 app = Flask(__name__)
+app.secret_key = os.urandom(24)
 
-db = sqlite3.connect('database.db',check_same_thread=False)
-cursor = db.cursor()
-cursor.execute('''
-    CREATE TABLE IF NOT EXISTS workers(
-        id TEXT PRIMARY KEY,
-        online INTEGER DEFAULT 0,
-        ipv4_capable INTEGER,
-        ipv4_address TEXT,
-        ipv6_capable INTEGER,
-        ipv6_address TEXT
-    )
-''')
-db.commit()
-
-
-
+dbinit()
 
 @app.route('/add_worker', methods=['POST'])
 def add_worker():
@@ -28,10 +17,7 @@ def add_worker():
     ipv4_capable = int(ipv4_capable == 'True')
     ipv6_capable = int(ipv6_capable == 'True')
     online = 0
-    db = sqlite3.connect('database.db')
-    cursor = db.cursor()
-    cursor.execute('INSERT INTO workers (id, online, ipv4_capable, ipv4_address, ipv6_capable, ipv6_address) VALUES (?, ?, ?, ?, ?, ?)', (worker_id, online, ipv4_capable, ipv4_address, ipv6_capable, ipv6_address))
-    db.commit()
+    execute('INSERT INTO workers (id, online, ipv4_capable, ipv4_address, ipv6_capable, ipv6_address) VALUES (?, ?, ?, ?, ?, ?)', (worker_id, online, ipv4_capable, ipv4_address, ipv6_capable, ipv6_address))
     return 'Worker added successfully'
 
 @app.route('/remove_worker', methods=['GET','POST'])
@@ -39,10 +25,7 @@ def remove_worker():
     if request.method == 'POST':
         data = request.form.get('id')
         worker_id = data
-        db = sqlite3.connect('database.db')
-        cursor = db.cursor()
-        cursor.execute('DELETE FROM workers WHERE id = ?', (worker_id,))
-        db.commit()
+        execute('DELETE FROM workers WHERE id = ?', (worker_id,))
         return redirect(url_for('settings'))
     else:
         return 'Method Not Allowed', 405  
@@ -53,46 +36,49 @@ def index():
 
 @app.route('/submit_form', methods=['POST'])
 def submit_form():
-    #target = request.form.get('target')
-    #ping_en = request.form.get('ping')
-    
-    # Process the form data as needed
-    # For this example, we'll just print the data
-    #print(f"Target: {target}")
-    #print(f"Ping: {ping_en}")
-    #ping4(target)
-    #ping6(target)
-    return redirect(url_for('index'))
+    target = request.form.get('target')
+    ping_en = request.form.get('ping')
+    ipv4_en = request.form.get('ipv4')
+    ipv6_en = request.form.get('ipv6')
+    print(target, ping_en, ipv4_en, ipv6_en)
+    result_dict = {"Scans": {"Ping": None, "Trace": None}}
+
+    output = ''
+    if ping_en == 'ping':
+        result_dict['Scans']['Ping'] = ping_target(target, ipv4_en, ipv6_en)
+
+    output = json.dumps(result_dict, indent=2)
+    session['output'] = output
+    return redirect(url_for('output'))
 
 
 
 @app.route("/settings")
 def settings():
-    db = sqlite3.connect('database.db')
-    cursor = db.cursor()
-    cursor.execute('SELECT * FROM workers WHERE online = 1')  # Filter active workers
+
+    cursor = execute('SELECT * FROM workers WHERE online = 1') 
     rows = cursor.fetchall()
     active_workers = []
 
     for row in rows:
         active_workers.append({
             'id': row[0],
-            'ipv4_capable': row[2],  # Assuming this is the IPv4 capability column
-            'ipv4_address': row[3],  # Assuming this is the IPv4 address column
-            'ipv6_capable': row[4],  # Assuming this is the IPv6 capability column
-            'ipv6_address': row[5]  # Assuming this is the IPv6 address column
+            'ipv4_capable': row[2],  
+            'ipv4_address': row[3],  
+            'ipv6_capable': row[4], 
+            'ipv6_address': row[5]  
         })
-    cursor.execute('SELECT * FROM workers WHERE online = 0')  # Filter active workers
+    cursor = execute('SELECT * FROM workers WHERE online = 0')  
     rows = cursor.fetchall()
     dead_workers = []
 
     for row in rows:
         dead_workers.append({
             'id': row[0],
-            'ipv4_capable': row[2],  # Assuming this is the IPv4 capability column
-            'ipv4_address': row[3],  # Assuming this is the IPv4 address column
-            'ipv6_capable': row[4],  # Assuming this is the IPv6 capability column
-            'ipv6_address': row[5]  # Assuming this is the IPv6 address column
+            'ipv4_capable': row[2],
+            'ipv4_address': row[3], 
+            'ipv6_capable': row[4],  
+            'ipv6_address': row[5]  
         })
     return render_template('settings.html', dead_workers=dead_workers, active_workers=active_workers)
 
@@ -102,7 +88,13 @@ def test():
 
 @app.route("/output")
 def output():
-    return render_template('output.html')
+    try:
+        output_json = session.get('output', '{}')
+        output_dict = json.loads(output_json)
+        #output = session.pop('output', None)
+    except:
+        output = 'No output'
+    return render_template('output.html', output=output_dict)
 
 if __name__ == "__main__":
     app.run(debug=True,host="0.0.0.0",port=8666)
