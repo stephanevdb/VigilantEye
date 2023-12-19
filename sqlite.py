@@ -10,7 +10,8 @@ def dbinit():
             ipv4_capable INTEGER,
             ipv4_address TEXT,
             ipv6_capable INTEGER,
-            ipv6_address TEXT
+            ipv6_address TEXT,
+            worker_ip TEXT
         )
     ''')
     cursor.execute('''

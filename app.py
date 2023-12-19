@@ -1,14 +1,36 @@
 from flask import Flask, render_template, request, redirect, url_for, session
 import sqlite3
 import os
+import requests
+import threading
+from time import sleep
 import json
 from sqlite import dbinit, execute
 from modules.ping import ping_target
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
-
 dbinit()
+
+def check_worker():
+    while True:
+        print('Checking workers')
+        cursor = execute('SELECT * FROM workers')
+        workers = cursor.fetchall()
+        for worker in workers:
+            worker_id = worker[0]
+            worker_ip = worker[6]
+            try:
+                requests.get(f'http://{worker_ip}:8667/ping', timeout=1)
+                execute('UPDATE workers SET online = 1 WHERE id = ?', (worker_id,))
+                print(f'Worker {worker_id} is online')
+            except requests.exceptions.RequestException as e:
+                execute('UPDATE workers SET online = 0 WHERE id = ?', (worker_id,))
+                print(f'Worker {worker_id} is offline')
+        sleep(5)
+
+
+
 
 @app.route('/add_worker', methods=['POST'])
 def add_worker():
@@ -16,8 +38,9 @@ def add_worker():
     worker_id, ipv4_capable, ipv4_address, ipv6_capable, ipv6_address = data.split(',')
     ipv4_capable = int(ipv4_capable == 'True')
     ipv6_capable = int(ipv6_capable == 'True')
+    worker_ip= request.environ.get('HTTP_X_REAL_IP', request.remote_addr)   
     online = 0
-    execute('INSERT INTO workers (id, online, ipv4_capable, ipv4_address, ipv6_capable, ipv6_address) VALUES (?, ?, ?, ?, ?, ?)', (worker_id, online, ipv4_capable, ipv4_address, ipv6_capable, ipv6_address))
+    execute('INSERT INTO workers (id, online, ipv4_capable, ipv4_address, ipv6_capable, ipv6_address, worker_ip) VALUES (?, ?, ?, ?, ?, ?, ?)', (worker_id, online, ipv4_capable, ipv4_address, ipv6_capable, ipv6_address, worker_ip))
     return 'Worker added successfully'
 
 @app.route('/remove_worker', methods=['GET','POST'])
@@ -96,5 +119,9 @@ def output():
         output = 'No output'
     return render_template('output.html', output=output_dict)
 
+
 if __name__ == "__main__":
+    bg_thread = threading.Thread(target=check_worker)
+    #bg_thread.daemon = True  # Set the thread as a daemon
+    bg_thread.start()
     app.run(debug=True,host="0.0.0.0",port=8666)
