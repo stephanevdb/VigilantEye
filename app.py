@@ -124,4 +124,4 @@ if __name__ == "__main__":
     bg_thread = threading.Thread(target=check_worker)
     #bg_thread.daemon = True  # Set the thread as a daemon
     bg_thread.start()
-    app.run(debug=True,host="0.0.0.0",port=8666)
+    app.run(debug=False,host="0.0.0.0",port=8666)
