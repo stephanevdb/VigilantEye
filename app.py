@@ -8,6 +8,52 @@ import json
 from sqlite import dbinit, execute
 from modules.ping import ping_target
 
+MODULES_PATH = 'modules'
+
+def upload_files(selected_module):
+    file_path = os.path.join(MODULES_PATH, f'{selected_module}.py')
+    req_path = os.path.join(MODULES_PATH, f'{selected_module}.txt')
+    print(file_path)
+    print(req_path)
+    try:
+        with open(file_path, 'rb') as f:
+            f.seek(0)
+            file = {'file': (os.path.basename(file_path), f)}
+            url = f'http://{worker_ip}:8667/upload'
+            r = requests.post(url, files=file)
+            if r.status_code == 200:
+                print(f"File {file_path} uploaded successfully")
+            else:
+                print(f"File upload failed with status code {r.status_code}")
+
+    except requests.exceptions.RequestException as e:
+        print("Error uploading file:", e)
+        return 'Error uploading file', 500
+    try:
+        with open(req_path, 'rb') as f:
+            f.seek(0)
+            file = {'file': (os.path.basename(req_path), f)}
+            url = f'http://{worker_ip}:8667/upload'
+            r = requests.post(url, files=file)
+            if r.status_code == 200:
+                print(f"File {req_path} uploaded successfully")
+            else:
+                print(f"File upload failed with status code {r.status_code}")
+    except requests.exceptions.RequestException as e:
+        print("Error uploading file:", e)
+        return 'Error uploading file', 500
+
+def get_available_modules():
+    available_modules = []
+    for file in os.listdir(MODULES_PATH):
+        if file.endswith('.py'):
+            available_modules.append(file[:-3])
+    return available_modules
+
+worker_port = os.getenv('WORKER_PORT')
+if not worker_port:
+    master_port = 8666
+
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
 dbinit()
@@ -21,7 +67,12 @@ def check_worker():
             worker_id = worker[0]
             worker_ip = worker[6]
             try:
-                requests.get(f'http://{worker_ip}:8667/ping', timeout=1)
+                res = requests.get(f'http://{worker_ip}:8667/ping', timeout=1)
+                returned_worker_id = res.text.split(',')[0]
+                if returned_worker_id != worker_id:
+                    execute('UPDATE workers SET online = 0 WHERE id = ?', (worker_id,))
+                    print(f'Worker {worker_id} is offline')
+                    continue
                 execute('UPDATE workers SET online = 1 WHERE id = ?', (worker_id,))
                 print(f'Worker {worker_id} is online')
             except requests.exceptions.RequestException as e:
@@ -70,11 +121,22 @@ def submit_form():
     if ping_en == 'ping':
         result_dict['Scans']['Ping'] = ping_target(target, ipv4_en, ipv6_en)
 
+    cursor = execute('SELECT * FROM workers')
+    workers = cursor.fetchall()
+    worker = workers[0]
+    worker_ip = worker[6]
+    print("sending job to worker: " + worker_ip)
+
+    upload_files('ping')
+
+
+
     output = json.dumps(result_dict, indent=2)
     session['output'] = output
     return redirect(url_for('output'))
 
 
+    
 
 @app.route("/settings")
 def settings():
