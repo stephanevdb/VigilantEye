@@ -110,12 +110,14 @@ def index():
 
 @app.route('/submit_form', methods=['POST'])
 def submit_form():
+
     target = request.form.get('target')
     ping_en = request.form.get('ping')
     ipv4_en = request.form.get('ipv4')
     ipv6_en = request.form.get('ipv6')
     print(target, ping_en, ipv4_en, ipv6_en)
     result_dict = {"Scans": {"Ping": None, "Trace": None}}
+
 
     output = ''
     #if ping_en == 'ping':
@@ -133,6 +135,7 @@ def submit_form():
     print(data)
     try:
         res = requests.post(f'http://{worker_ip}:8667/job', data=data, timeout=1)
+        cur = execute('insert into scans (target, worker_id, output) values (?, ?, ?)', (target, worker[0], res.text))
         print("Job sent to worker: " + worker_ip)
     except requests.exceptions.RequestException as e:
         print("Error sending job:", e)

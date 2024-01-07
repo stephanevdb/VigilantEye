@@ -18,6 +18,7 @@ def dbinit():
         CREATE TABLE IF NOT EXISTS scans(
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             target TEXT,
+            worker_id TEXT,
             output TEXT
         )
     ''')

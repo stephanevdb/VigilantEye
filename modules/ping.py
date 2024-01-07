@@ -31,20 +31,16 @@ def ping6(target):
     return None
 
 def ping_target(target, ipv4_en, ipv6_en):
-    result_dict = {}
     
-    if ipv4_en == 'ipv4':
-        result_dict['IPv4'] = ping4(target)
-    if ipv6_en == 'ipv6':
-        result_dict['IPv6'] = ping6(target)
+    result_dict = {"ping": [
+        {"IPv4": ping4(target)} if ipv4_en == 'ipv4' else {"IPv4": None},
+        {"IPv6": ping6(target)} if ipv6_en == 'ipv6' else {"IPv6": None}
+        ]}
+
     
     return json.dumps(result_dict)
 
-print("Running ping.py...")
-print(sys.argv)
-print("Target:", sys.argv[1])
-print("IPv4:", sys.argv[2])
-print("IPv6:", sys.argv[3])
+
 if len(sys.argv) >= 3:
     print(ping_target(sys.argv[1], sys.argv[2], sys.argv[3]))
 else:
