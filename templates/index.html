@@ -59,14 +59,12 @@
                 </div>
             </div>
             <div class="dropdown-divider"></div>
-            <div class="form-check">
-                <input type="checkbox" class="form-check-input" id="ping" name="ping" value="ping" checked>
-                <label class="form-check-label" for="ping">Ping</label>
-            </div>
-            <div class="form-check">
-                <input type="checkbox" class="form-check-input" id="trace" name="trace" value="trace">
-                <label class="form-check-label" for="trace">Trace</label>
-            </div>
+            {% for module in available_modules %}
+                <div class="form-check">
+                    <input type="checkbox" class="form-check-input" id="{{ module }}" name="modules" value="{{ module }}" checked>
+                    <label class="form-check-label" for="{{ module }}">{{ module }}</label>
+                </div>
+            {% endfor %}
             <button type="submit" class="btn btn-primary mt-3">Submit</button>
         </form>
     </div>

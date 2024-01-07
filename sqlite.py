@@ -20,7 +20,8 @@ def dbinit():
             target TEXT,
             worker_id TEXT,
             output TEXT, 
-            date TEXT DEFAULT CURRENT_TIMESTAMP
+            date TEXT DEFAULT CURRENT_TIMESTAMP,
+            module TEXT
         )
     ''')
     db.commit()

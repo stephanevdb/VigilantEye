@@ -50,7 +50,8 @@
                         <th>ID</th>
                         <th>Target</th>
                         <th>Worker ID</th>
-                        <th>Time</th>
+                        <th>Time (UTC)</th>
+                        <th>Module</th>
                         <th>Action</th>
                     </tr>
                 </thead>
@@ -61,6 +62,7 @@
                             <td>{{ scan.target }}</td>
                             <td>{{ scan.worker_id }}</td>
                             <td>{{ scan.time }}</td>
+                            <td>{{ scan.module }}</td>
                             <td>
                                 <form method="POST" action="{{ url_for('remove_scan') }}">
                                     <input type="hidden" name="id" value="{{ scan.id }}">

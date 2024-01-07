@@ -6,9 +6,45 @@ import threading
 from time import sleep
 import json
 from sqlite import dbinit, execute
+import asyncio
+from concurrent.futures import ThreadPoolExecutor
 
 
 MODULES_PATH = 'modules'
+
+def get_available_modules():
+    available_modules = []
+    for file in os.listdir(MODULES_PATH):
+        if file.endswith('.py'):
+            available_modules.append(file[:-3])
+    return available_modules
+
+def get_online_worker():
+    cursor = execute('SELECT * FROM workers WHERE online = 1')
+    workers = cursor.fetchall()
+
+    for worker in workers:
+        worker_id = worker[0]
+        worker_ip = worker[6]
+        try:
+            res = requests.get(f'http://{worker_ip}:8667/ping', timeout=1)
+            returned_worker_id, state = res.text.split(',')
+            
+            if returned_worker_id == worker_id and state.strip().lower() == 'idle':
+                return {
+                    'id': worker_id,
+                    'ipv4_capable': worker[2],
+                    'ipv4_address': worker[3],
+                    'ipv6_capable': worker[4],
+                    'ipv6_address': worker[5],
+                    'worker_ip': worker_ip
+                }
+        except requests.exceptions.RequestException as e:
+            print(f"Error getting worker status: {e}")
+            pass
+
+    return None
+
 
 def upload_files(worker_ip,selected_module):
     file_path = os.path.join(MODULES_PATH, f'{selected_module}.py')
@@ -116,42 +152,34 @@ def remove_scan():
 
 @app.route("/")
 def index():
-    return render_template('index.html')
+    return render_template('index.html', available_modules=get_available_modules())
 
 @app.route('/submit_form', methods=['POST'])
 def submit_form():
-
     target = request.form.get('target')
-    ping_en = request.form.get('ping')
+    selected_modules = request.form.getlist('modules')
     ipv4_en = request.form.get('ipv4')
     ipv6_en = request.form.get('ipv6')
-    print(target, ping_en, ipv4_en, ipv6_en)
-    result_dict = {"Scans": {"Ping": None, "Trace": None}}
+    result_dict = {"Scans": {}}
 
+    for module in selected_modules:
+        result_dict['Scans'][module] = None
 
-    output = ''
-    #if ping_en == 'ping':
-    #    result_dict['Scans']['Ping'] = ping_target(target, ipv4_en, ipv6_en)
+        worker = get_online_worker()
 
-    cursor = execute('SELECT * FROM workers')
-    workers = cursor.fetchall()
-    worker = workers[0]
-    worker_ip = worker[6]
-    print("Uploading files to worker: " + worker_ip)
-    upload_files(worker_ip,'ping')
-    print("Sending job to worker: " + worker_ip)
-    selected_module = 'ping'
-    data = f"{selected_module},{target},{ipv4_en},{ipv6_en}"
-    print(data)
-    try:
-        res = requests.post(f'http://{worker_ip}:8667/job', data=data, timeout=1)
-        cur = execute('insert into scans (target, worker_id, output) values (?, ?, ?)', (target, worker[0], res.text))
-        print("Job sent to worker: " + worker_ip)
-    except requests.exceptions.RequestException as e:
-        print("Error sending job:", e)
-        return 'Error sending job', 500
-
-
+        if worker:
+            print(f"Sending job to worker {worker['id']} for module {module}")
+            data = f"{module},{target},{ipv4_en},{ipv6_en}"
+            try:
+                upload_files(worker['worker_ip'],module)
+                res = requests.post(f'http://{worker["worker_ip"]}:8667/job', data=data)
+                cur = execute('INSERT INTO scans (target, worker_id, output, module) VALUES (?, ?, ?, ?)', (target, worker['id'], res.text, module))
+                print(f"Job sent to worker {worker['id']} for module {module}")
+            except requests.exceptions.RequestException as e:
+                print(f"Error sending job for module {module}: {e}")
+                return f"Error sending job for module {module}", 500
+        else:
+            print("No online workers available for module {module}")
 
     output = json.dumps(result_dict, indent=2)
     session['output'] = output
@@ -215,7 +243,8 @@ def scans():
             'target': row[1],
             'worker_id': row[2],
             'output': row[3],
-            'time': row[4]
+            'time': row[4],
+            'module': row[5]
         })
     return render_template('scans.html', output=output_dict)
 
