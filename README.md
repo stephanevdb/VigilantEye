@@ -10,7 +10,7 @@ VigilantEye is a Python web scanning toolkit built with Flask, featuring a maste
 ### Prerequisites
 
 - Python (3.11 or higher)
-- Communication between master and worker on ports `8666` and `8667``
+- Communication between master and worker on ports `8666` and `8667`
 
 ### Installation
 
