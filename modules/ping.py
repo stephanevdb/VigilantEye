@@ -1,5 +1,6 @@
 import subprocess
 import json
+import sys
 
 def ping4(target):
     try:
@@ -38,3 +39,14 @@ def ping_target(target, ipv4_en, ipv6_en):
         result_dict['IPv6'] = ping6(target)
     
     return json.dumps(result_dict)
+
+print("Running ping.py...")
+print(sys.argv)
+print("Target:", sys.argv[1])
+print("IPv4:", sys.argv[2])
+print("IPv6:", sys.argv[3])
+if len(sys.argv) >= 3:
+    print(ping_target(sys.argv[1], sys.argv[2], sys.argv[3]))
+else:
+    print("Error: Insufficient command line arguments.")
+    print("Usage: python3 ping.py <target> <ipv4_en> <ipv6_en>")

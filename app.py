@@ -6,11 +6,11 @@ import threading
 from time import sleep
 import json
 from sqlite import dbinit, execute
-from modules.ping import ping_target
+
 
 MODULES_PATH = 'modules'
 
-def upload_files(selected_module):
+def upload_files(worker_ip,selected_module):
     file_path = os.path.join(MODULES_PATH, f'{selected_module}.py')
     req_path = os.path.join(MODULES_PATH, f'{selected_module}.txt')
     print(file_path)
@@ -118,16 +118,25 @@ def submit_form():
     result_dict = {"Scans": {"Ping": None, "Trace": None}}
 
     output = ''
-    if ping_en == 'ping':
-        result_dict['Scans']['Ping'] = ping_target(target, ipv4_en, ipv6_en)
+    #if ping_en == 'ping':
+    #    result_dict['Scans']['Ping'] = ping_target(target, ipv4_en, ipv6_en)
 
     cursor = execute('SELECT * FROM workers')
     workers = cursor.fetchall()
     worker = workers[0]
     worker_ip = worker[6]
-    print("sending job to worker: " + worker_ip)
-
-    upload_files('ping')
+    print("Uploading files to worker: " + worker_ip)
+    upload_files(worker_ip,'ping')
+    print("Sending job to worker: " + worker_ip)
+    selected_module = 'ping'
+    data = f"{selected_module},{target},{ipv4_en},{ipv6_en}"
+    print(data)
+    try:
+        res = requests.post(f'http://{worker_ip}:8667/job', data=data, timeout=1)
+        print("Job sent to worker: " + worker_ip)
+    except requests.exceptions.RequestException as e:
+        print("Error sending job:", e)
+        return 'Error sending job', 500
 
 
 
