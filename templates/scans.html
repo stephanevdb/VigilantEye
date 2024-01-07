@@ -8,6 +8,9 @@
     <title>Scans</title>
 </head>
 <body>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
         <a class="navbar-brand" href="{{ url_for('index') }}">VigilentEye</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -19,7 +22,7 @@
                     <a class="nav-link" href="{{ url_for('index') }}">Home</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('output') }}">Scans</a>
+                    <a class="nav-link" href="{{ url_for('scans') }}">Scans</a>
                 </li>
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Dropdown</a>
@@ -47,33 +50,51 @@
                         <th>ID</th>
                         <th>Target</th>
                         <th>Worker ID</th>
-                        <th>Output</th>
+                        <th>Time</th>
+                        <th>Action</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for scan in output %}
-                        <tr>
+                        <tr class="clickable-row" data-href="{{ url_for('scan', scan_id=scan.id) }}">
                             <td>{{ scan.id }}</td>
                             <td>{{ scan.target }}</td>
                             <td>{{ scan.worker_id }}</td>
-                            <td><a href="{{ url_for('scan_output', scan_id=scan.id) }}">View Output</a></td>
+                            <td>{{ scan.time }}</td>
+                            <td>
+                                <form method="POST" action="{{ url_for('remove_scan') }}">
+                                    <input type="hidden" name="id" value="{{ scan.id }}">
+                                    <button type="submit" class="btn btn-danger">
+                                        <!--<i class="fas fa-trash-alt"></i>--> Remove
+                                    </button>
+                                </form>
+                            </td>
                         </tr>
                     {% endfor %}
                 </tbody>
             </table>
+            <script>
+                jQuery(document).ready(function($) {
+                    $(".clickable-row").click(function() {
+                        window.location = $(this).data("href");
+                    });
+                });
+            </script>
         {% else %}
             <p>No output available.</p>
         {% endif %}
     </div>
     
+         
+
     
     
     
     
     
     
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    
+    
+    
 </body>
 </html>

@@ -19,7 +19,8 @@ def dbinit():
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             target TEXT,
             worker_id TEXT,
-            output TEXT
+            output TEXT, 
+            date TEXT DEFAULT CURRENT_TIMESTAMP
         )
     ''')
     db.commit()

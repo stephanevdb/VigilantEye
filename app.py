@@ -104,6 +104,16 @@ def remove_worker():
     else:
         return 'Method Not Allowed', 405  
 
+@app.route('/remove_scan', methods=['GET','POST'])
+def remove_scan():
+    if request.method == 'POST':
+        data = request.form.get('id')
+        scan_id = data
+        execute('DELETE FROM scans WHERE id = ?', (scan_id,))
+        return redirect(url_for('scans'))
+    else:
+        return 'Method Not Allowed', 405
+
 @app.route("/")
 def index():
     return render_template('index.html')
@@ -145,7 +155,7 @@ def submit_form():
 
     output = json.dumps(result_dict, indent=2)
     session['output'] = output
-    return redirect(url_for('output'))
+    return redirect(url_for('scans'))
 
 
     
@@ -183,25 +193,19 @@ def settings():
 def test():
     return render_template('test.html'), 200
 
-@app.route('/scan_output/<int:scan_id>')
-def scan_output(scan_id):
+@app.route('/scan/<int:scan_id>')
+def scan(scan_id):
     print(f"Scan ID: {scan_id}")
     cursor = execute('SELECT * FROM scans WHERE id = ?', (scan_id,))
     scan = cursor.fetchone()
-    print(scan)
+    print(scan[3])
     if scan:
-        return render_template('scan_output.html', scan=scan)
+        return render_template('scan_output.html', scan=scan[3])
     else:
         return 'Scan not found', 404
 
-@app.route("/output")
-def output():
-    """ try:
-        output_json = session.get('output', '{}')
-        output_dict = json.loads(output_json)
-        #output = session.pop('output', None)
-    except:
-         output = 'No output'"""
+@app.route("/scans")
+def scans():
     cursor = execute('SELECT * FROM scans')
     rows = cursor.fetchall()
     output_dict = []
@@ -210,9 +214,10 @@ def output():
             'id': row[0],
             'target': row[1],
             'worker_id': row[2],
-            'output': row[3]
+            'output': row[3],
+            'time': row[4]
         })
-    return render_template('output.html', output=output_dict)
+    return render_template('scans.html', output=output_dict)
 
 
 if __name__ == "__main__":
