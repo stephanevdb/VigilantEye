@@ -39,7 +39,23 @@
     </nav>
     <div class="container mt-5">
         <h1>Scan Output</h1>
-        <p> {{ scan }}</p>
+        <table border="1">
+            <tr>
+                <th>{{ scan[0] }}</th>
+                <th>Value</th>
+            </tr>
+        
+            {% for category, entries in scan.items() %}
+                {% for entry in entries %}
+                    <tr>
+                        {% for key, value in entry.items() %}
+                            <td>{{ key }}</td>
+                            <td>{{ value }}</td>
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+            {% endfor %}
+        </table>
     </div>
 
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>

@@ -9,6 +9,7 @@ from sqlite import dbinit, execute
 import asyncio
 from concurrent.futures import ThreadPoolExecutor
 
+executor = ThreadPoolExecutor()
 
 MODULES_PATH = 'modules'
 
@@ -162,28 +163,33 @@ def submit_form():
     ipv6_en = request.form.get('ipv6')
     result_dict = {"Scans": {}}
 
-    for module in selected_modules:
-        result_dict['Scans'][module] = None
+    async def process_modules():
+        loop = asyncio.get_event_loop()
 
-        worker = get_online_worker()
+        tasks = [loop.run_in_executor(executor, process_module, target, ipv4_en, ipv6_en, module) for module in selected_modules]
+        await asyncio.gather(*tasks)
 
-        if worker:
-            print(f"Sending job to worker {worker['id']} for module {module}")
-            data = f"{module},{target},{ipv4_en},{ipv6_en}"
-            try:
-                upload_files(worker['worker_ip'],module)
-                res = requests.post(f'http://{worker["worker_ip"]}:8667/job', data=data)
-                cur = execute('INSERT INTO scans (target, worker_id, output, module) VALUES (?, ?, ?, ?)', (target, worker['id'], res.text, module))
-                print(f"Job sent to worker {worker['id']} for module {module}")
-            except requests.exceptions.RequestException as e:
-                print(f"Error sending job for module {module}: {e}")
-                return f"Error sending job for module {module}", 500
-        else:
-            print("No online workers available for module {module}")
+    asyncio.run(process_modules())
 
     output = json.dumps(result_dict, indent=2)
     session['output'] = output
     return redirect(url_for('scans'))
+
+def process_module(target, ipv4_en, ipv6_en, module):
+    worker = get_online_worker()
+
+    if worker:
+        print(f"Sending job to worker {worker['id']} for module {module}")
+        data = f"{module},{target},{ipv4_en},{ipv6_en}"
+        try:
+            upload_files(worker['worker_ip'], module)
+            res = requests.post(f'http://{worker["worker_ip"]}:8667/job', data=data)
+            cur = execute('INSERT INTO scans (target, worker_id, output, module) VALUES (?, ?, ?, ?)', (target, worker['id'], res.text, module))
+            print(f"Job sent to worker {worker['id']} for module {module}")
+        except requests.exceptions.RequestException as e:
+            print(f"Error sending job for module {module}: {e}")
+    else:
+        print(f"No online workers available for module {module}")
 
 
     
@@ -226,9 +232,11 @@ def scan(scan_id):
     print(f"Scan ID: {scan_id}")
     cursor = execute('SELECT * FROM scans WHERE id = ?', (scan_id,))
     scan = cursor.fetchone()
-    print(scan[3])
+    x = scan[3]
+    y = json.loads(x)
+    print(y)
     if scan:
-        return render_template('scan_output.html', scan=scan[3])
+        return render_template('scan_output.html', scan=y)
     else:
         return 'Scan not found', 404
 
