@@ -19,6 +19,10 @@ Install the required dependencies:
 ```bash
 pip install -r requirements.txt
 ```
+## Docker Usage
+
+For instructions on using VigilantEye with Docker, refer to the [Docker documentation](docker.md).
+
 
 ## Usage
 

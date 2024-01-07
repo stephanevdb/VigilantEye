@@ -4,8 +4,13 @@ services:
     image: stephanevdb/vigilanteye-master:latest
     restart: unless-stopped
     ports:
-      - "5080:3000"
-      - "5080:3000/tcp6"
+      - "8666:8666"
+      - "8666:8666/tcp6"
   worker:
     image: stephanevdb/vigilanteye-worker:latest
     restart: unless-stopped
+    ports:
+      - "8667:8667"
+      - "8667:8667/tcp6"
+    depends_on:
+      - master
