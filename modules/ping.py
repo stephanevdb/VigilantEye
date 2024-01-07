@@ -37,7 +37,6 @@ def ping_target(target, ipv4_en, ipv6_en):
         {"IPv6": ping6(target)} if ipv6_en == 'ipv6' else {"IPv6": None}
         ]}
 
-    
     return json.dumps(result_dict)
 
 

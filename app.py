@@ -183,14 +183,35 @@ def settings():
 def test():
     return render_template('test.html'), 200
 
+@app.route('/scan_output/<int:scan_id>')
+def scan_output(scan_id):
+    print(f"Scan ID: {scan_id}")
+    cursor = execute('SELECT * FROM scans WHERE id = ?', (scan_id,))
+    scan = cursor.fetchone()
+    print(scan)
+    if scan:
+        return render_template('scan_output.html', scan=scan)
+    else:
+        return 'Scan not found', 404
+
 @app.route("/output")
 def output():
-    try:
+    """ try:
         output_json = session.get('output', '{}')
         output_dict = json.loads(output_json)
         #output = session.pop('output', None)
     except:
-        output = 'No output'
+         output = 'No output'"""
+    cursor = execute('SELECT * FROM scans')
+    rows = cursor.fetchall()
+    output_dict = []
+    for row in rows:
+        output_dict.append({
+            'id': row[0],
+            'target': row[1],
+            'worker_id': row[2],
+            'output': row[3]
+        })
     return render_template('output.html', output=output_dict)
 
 

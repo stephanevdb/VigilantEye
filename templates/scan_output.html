@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <link rel="stylesheet" href="{{ url_for('static', filename= 'css/style.css') }}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <title>Scans</title>
+    <title>Scan Output</title>
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
@@ -39,39 +38,10 @@
         </div>
     </nav>
     <div class="container mt-5">
-        <h1>Scans</h1>
-        {% if output %}
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Target</th>
-                        <th>Worker ID</th>
-                        <th>Output</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for scan in output %}
-                        <tr>
-                            <td>{{ scan.id }}</td>
-                            <td>{{ scan.target }}</td>
-                            <td>{{ scan.worker_id }}</td>
-                            <td><a href="{{ url_for('scan_output', scan_id=scan.id) }}">View Output</a></td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        {% else %}
-            <p>No output available.</p>
-        {% endif %}
+        <h1>Scan Output</h1>
+        <p> {{ scan }}</p>
     </div>
-    
-    
-    
-    
-    
-    
-    
+
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
