@@ -1,9 +1,10 @@
 ### Stéphane Van den Broeck
 # Magnum Opus Network Security
 
-### Github links:
+### Github & Video link(s):
 - [https://github.com/stephanevdb/VigilantEye-Master](https://github.com/stephanevdb/VigilantEye-Master)
 - [https://github.com/stephanevdb/VigilantEye-Worker](https://github.com/stephanevdb/VigilantEye-Worker)
+- [https://ap.cloud.panopto.eu/Panopto/Pages/Viewer.aspx?id=bd85a594-5765-4f0a-9bb1-b0fc0153f9d7](https://ap.cloud.panopto.eu/Panopto/Pages/Viewer.aspx?id=bd85a594-5765-4f0a-9bb1-b0fc0153f9d7)
 
 ## VigilantEye
 VigilantEye is een Python webapp gebouwd met Flask, Gebruikmakend van een master en worker node. Hiermee kan je verschillende scans uit te voeren met zowel ingebouwde modules als eigen modules die zijn toegevoegd aan de MODULES folder.
